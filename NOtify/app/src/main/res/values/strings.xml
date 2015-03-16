@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">NOtify</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_new">New</string>
+    <string name="action_execute">Execute</string>
+</resources>
