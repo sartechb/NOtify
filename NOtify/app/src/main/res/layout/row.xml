@@ -3,13 +3,13 @@
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ToggleButton
-        android:id="@+id/togglebutton"
+    <Switch
+        android:id="@+id/allowSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textOn="Allow"
         android:textOff="Ignore"
-        android:onClick="onToggleClicked"/>
+        android:onClick="onAllowClicked"/>
     <TextView
         android:id="@+id/rowText"
         android:layout_width="wrap_content"

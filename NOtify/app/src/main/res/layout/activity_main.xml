@@ -8,18 +8,37 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <me.dontnotify.notify.NoDefaultSpinner
+            android:id="@+id/selectAppSpinner"
+            android:layout_width="120dp"
+            android:layout_height="45dp"
+            android:prompt="@string/app_select_text"
+            android:spinnerMode="dropdown" />
+        <me.dontnotify.notify.NoDefaultSpinner
+            android:id="@+id/selectActionSpinner"
+            android:prompt="@string/action_select_text"
+            android:entries="@array/action_array"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:spinnerMode="dropdown" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
         <EditText
             android:id="@+id/inputText"
             android:layout_weight="4"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:hint="@string/text_hint"/>
+            android:layout_height="40dp"
+            android:hint="@string/add_info_text"/>
         <Button
             android:id="@+id/addButton"
             android:text="@string/input_button_text"
             android:layout_weight="2"
             android:layout_width="0dp"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:onClick="onAddClicked"/>
     </LinearLayout>
 
     <ListView
