@@ -33,6 +33,9 @@ public class MainActivity extends ActionBarActivity {
     private NoDefaultSpinner selectAction;
 
     private ArrayList<AppInfo> AppInfoArray;
+    // AppInfo Declaration
+    //      Stores App information for App spinner and
+    //      in the ListView values ArrayList
     public static class AppInfo {
         public AppInfo(String startAppName,
                        String startPackageName) {
@@ -46,7 +49,6 @@ public class MainActivity extends ActionBarActivity {
 
     private ArrayList<NotifyItem> items;
     private MyArrayAdapter adapter;
-
     private DatabaseAccess db;
 
 
@@ -55,6 +57,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Link local objects with UI
         inputField = (EditText) findViewById(R.id.inputText);
         addButton = (Button) findViewById(R.id.addButton);
         itemList = (ListView) findViewById(R.id.itemList);
@@ -62,14 +65,15 @@ public class MainActivity extends ActionBarActivity {
                 findViewById(R.id.selectAppSpinner);
         selectAction = (NoDefaultSpinner)
                 findViewById(R.id.selectActionSpinner);
-        AppInfoArray = new ArrayList<AppInfo>();
 
+        AppInfoArray = new ArrayList<AppInfo>();
         items = new ArrayList<NotifyItem>();
         adapter = new MyArrayAdapter(this, items);
         itemList.setAdapter(adapter);
 
         db = new DatabaseAccess(this);
 
+        // Fill App Spinner, load rules from disk(db)
         fillSelectApp();
         restoreDatafromDisk();
     }
@@ -161,6 +165,7 @@ public class MainActivity extends ActionBarActivity {
     // MyArrayAdapter
     //
     // Custom adapter to populate listview rows with ScavengerItems.
+    // Called through the notifyDataSetChanged calls
     //
     private class MyArrayAdapter extends ArrayAdapter<NotifyItem> {
         private Context context;
@@ -193,20 +198,24 @@ public class MainActivity extends ActionBarActivity {
         }
     } // MyArrayAdapter
 
-    // add items into spinner dynamically
+    // Add items into App spinner dynamically from currently
+    //      installed programs
     public void fillSelectApp() {
         List<String> list = new ArrayList<String>();
         AppInfoArray.clear();
 
+        //get a list of installed apps
         final PackageManager pm = getPackageManager();
-        //get a list of installed apps.
         List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
 
+        //Fill App Spinner value Array and linked AppInfo Array
         for (ApplicationInfo packageInfo : packages) {
             String app_name = (String) pm.getApplicationLabel(packageInfo);
             list.add(app_name);
             AppInfoArray.add(new AppInfo(app_name, packageInfo.packageName));
         }
+
+        // Update App Spinner
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, list);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -222,6 +231,7 @@ public class MainActivity extends ActionBarActivity {
     public void restoreDatafromDisk() {
         ArrayList<NotifyItem> updatedItems = db.getAllData();
         if( updatedItems.size() != items.size() ) {
+            // Must create and link b/c Javas copy by reference
             items = updatedItems;
             adapter = new MyArrayAdapter(this, items);
             itemList.setAdapter(adapter);
