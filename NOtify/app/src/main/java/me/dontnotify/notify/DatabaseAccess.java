@@ -55,7 +55,7 @@ public class DatabaseAccess {
         curr_index = i-1;
     }
 
-    public MainActivity.NotifyItem getRow (int index) {
+    public String getAppString (String packageName) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         String[] projection = {
@@ -64,29 +64,21 @@ public class DatabaseAccess {
                 DatabaseEntry.COLUMN_NAME_ACTION,
                 DatabaseEntry.COLUMN_NAME_ADD
         };
-        String where = DatabaseEntry.COLUMN_NAME_INDEX +
+        String where = DatabaseEntry.COLUMN_NAME_PACKAGE +
                 " = ?";
-        String[] whereArgs = new String[] { Integer.toString(index) };
+        String[] whereArgs = new String[] { packageName };
 
         Cursor c = db.query( DatabaseEntry.TABLE_NAME,
                             projection, where, whereArgs,
                             null, null, null);
-        if ( c.getCount() > 1 )
-            throw new RuntimeException("More than one SQL row with same index");
+
+        if(c.getCount() == 0) return null;
 
         c.moveToFirst();
-        MainActivity.AppInfo appInfo = new MainActivity.AppInfo(
-                c.getString(c.getColumnIndexOrThrow(DatabaseEntry.COLUMN_NAME_APP)),
-                c.getString(c.getColumnIndexOrThrow(DatabaseEntry.COLUMN_NAME_PACKAGE))
-        );
-        MainActivity.NotifyItem notifyItem = new MainActivity.NotifyItem(
-                appInfo,
-                c.getString(c.getColumnIndexOrThrow(DatabaseEntry.COLUMN_NAME_ACTION)),
-                c.getString(c.getColumnIndexOrThrow(DatabaseEntry.COLUMN_NAME_ADD))
-        );
+        String ret = c.getString(c.getColumnIndexOrThrow(DatabaseEntry.COLUMN_NAME_ADD));
 
         c.close();
-        return notifyItem;
+        return ret;
     }
 
     public ArrayList<MainActivity.NotifyItem> getAllData(){
