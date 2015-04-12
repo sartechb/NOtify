@@ -1,12 +1,17 @@
 package me.dontnotify.notify;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -26,30 +31,37 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
-    private EditText inputField;
-    private Button addButton;
     private ListView itemList;
-    private NoDefaultSpinner selectApp;
-    private NoDefaultSpinner selectAction;
 
-    private ArrayList<AppInfo> AppInfoArray;
-    // AppInfo Declaration
-    //      Stores App information for App spinner and
-    //      in the ListView values ArrayList
-    public static class AppInfo {
-        public AppInfo(String startAppName,
-                       String startPackageName) {
-            appName = startAppName;
-            packageName = startPackageName;
-        }
-        public String appName; //Display Name
-        public String packageName; //Unique Identifier!
+    //private MyArrayAdapter adapter;
+    //private DatabaseAccess db;
+
+    /* Activty bar code */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_activity_actions, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_add:
+                openAdd();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
-    private ArrayList<NotifyItem> items;
-    private MyArrayAdapter adapter;
-    private DatabaseAccess db;
+    private void openAdd() {
+        Intent i = new Intent(this, NotifyAddAppActivity.class);
+        startActivity(i);
+    }
+    /* End Activty bar code */
 
 
     @Override
@@ -57,25 +69,17 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Link local objects with UI
-        inputField = (EditText) findViewById(R.id.inputText);
-        addButton = (Button) findViewById(R.id.addButton);
         itemList = (ListView) findViewById(R.id.itemList);
-        selectApp = (NoDefaultSpinner)
-                findViewById(R.id.selectAppSpinner);
-        selectAction = (NoDefaultSpinner)
-                findViewById(R.id.selectActionSpinner);
 
-        AppInfoArray = new ArrayList<AppInfo>();
-        items = new ArrayList<NotifyItem>();
-        adapter = new MyArrayAdapter(this, items);
-        itemList.setAdapter(adapter);
+        //items = new ArrayList<NotifyItem>();
+        //adapter = new MyArrayAdapter(this, items);
+        //itemList.setAdapter(adapter);
 
-        db = new DatabaseAccess(this);
+        //db = new DatabaseAccess(this);
 
         // Fill App Spinner, load rules from disk(db)
-        fillSelectApp();
-        restoreDatafromDisk();
+        //fillSelectApp();
+        //restoreDatafromDisk();
     }
 
     @Override
@@ -86,47 +90,13 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public void onPause() {
         super.onPause();
-        storeDataToDisk();
+        //storeDataToDisk();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        fillSelectApp();
-    }
-
-    public void onAddClicked(View view) {
-        String input = inputField.getText().toString();
-        if(selectApp.getSelectedItemPosition() == AdapterView.INVALID_POSITION){
-            Toast toast = Toast.makeText(
-                    this,"Please Select Application",
-                    Toast.LENGTH_SHORT);
-            toast.show();
-            return;
-        }
-        AppInfo appIn = AppInfoArray.get(selectApp.getSelectedItemPosition());
-        if(selectAction.getSelectedItem() == null) {
-            Toast toast = Toast.makeText(
-                    this,
-                    "Please Select Action",
-                    Toast.LENGTH_SHORT);
-            toast.show();
-            return;
-        }
-        String actionIn = selectAction.getSelectedItem().toString();
-        items.add(new NotifyItem(appIn, actionIn, input));
-        adapter.notifyDataSetChanged();
-    }
-
-    public void onAllowClicked(View view) {
-        // Is the toggle on?
-        boolean on = ((Switch) view).isChecked();
-
-        if (on) {
-            //Allow
-        } else {
-            // Ignore
-        }
+        //fillSelectApp();
     }
 
     //
@@ -134,6 +104,7 @@ public class MainActivity extends ActionBarActivity {
     //
     // Container class for information about a scavenger hunt item.
     //
+/*
     public static class NotifyItem {
         private Switch allowSwitch;
         private AppInfo appInfo;
@@ -160,6 +131,7 @@ public class MainActivity extends ActionBarActivity {
         public String getAction() { return actionInfo; }
         public String getAdd() { return addInfo; }
     } // NotifyItem
+*/
 
     //
     // MyArrayAdapter
@@ -167,6 +139,7 @@ public class MainActivity extends ActionBarActivity {
     // Custom adapter to populate listview rows with ScavengerItems.
     // Called through the notifyDataSetChanged calls
     //
+/*
     private class MyArrayAdapter extends ArrayAdapter<NotifyItem> {
         private Context context;
         private ArrayList<NotifyItem> values;
@@ -197,30 +170,9 @@ public class MainActivity extends ActionBarActivity {
             return row;
         }
     } // MyArrayAdapter
+*/
 
-    // Add items into App spinner dynamically from currently
-    //      installed programs
-    public void fillSelectApp() {
-        List<String> list = new ArrayList<String>();
-        AppInfoArray.clear();
-
-        //get a list of installed apps
-        final PackageManager pm = getPackageManager();
-        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
-
-        //Fill App Spinner value Array and linked AppInfo Array
-        for (ApplicationInfo packageInfo : packages) {
-            String app_name = (String) pm.getApplicationLabel(packageInfo);
-            list.add(app_name);
-            AppInfoArray.add(new AppInfo(app_name, packageInfo.packageName));
-        }
-
-        // Update App Spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, list);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        selectApp.setAdapter(dataAdapter);
-    }
+/*
 
     //Make Data Permanent to SQLite
     public void storeDataToDisk() {
@@ -238,5 +190,6 @@ public class MainActivity extends ActionBarActivity {
             adapter.notifyDataSetChanged();
         }
     }
+*/
 
 }

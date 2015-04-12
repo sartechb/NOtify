@@ -8,7 +8,11 @@
     <string name="app_select_text">Select App</string>
     <string name="action_select_text">Select Action</string>
     <string name="add_info_text">Enter Additional Info</string>
+    <string name="action_new">New</string>
+    <string name="add_app_name">New App Filter</string>
+    <string name="app_list_name">App List</string>
     <string-array name="action_array">
-        <item>Block All</item>
+        <item>Block</item>
+        <item>Allow</item>
     </string-array>
 </resources>
