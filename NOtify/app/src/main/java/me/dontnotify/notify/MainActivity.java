@@ -3,6 +3,8 @@ package me.dontnotify.notify;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -14,13 +16,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -116,17 +120,10 @@ public class MainActivity extends ActionBarActivity {
         String actionIn = selectAction.getSelectedItem().toString();
         items.add(new NotifyItem(appIn, actionIn, input));
         adapter.notifyDataSetChanged();
-    }
-
-    public void onAllowClicked(View view) {
-        // Is the toggle on?
-        boolean on = ((Switch) view).isChecked();
-
-        if (on) {
-            //Allow
-        } else {
-            // Ignore
-        }
+        db.updateRows(items);
+        inputField.getText().clear();
+        selectAction.setSelection(0);
+        selectApp.setSelection(0);
     }
 
     //
@@ -135,7 +132,6 @@ public class MainActivity extends ActionBarActivity {
     // Container class for information about a scavenger hunt item.
     //
     public static class NotifyItem {
-        private Switch allowSwitch;
         private AppInfo appInfo;
         private String actionInfo;
         private String addInfo;
@@ -145,12 +141,6 @@ public class MainActivity extends ActionBarActivity {
             appInfo = startApp;
             actionInfo = startAction;
             addInfo = startAdd;
-            allowSwitch = null;
-        }
-
-        public void setSW(Switch s){ allowSwitch = s;  }
-        public boolean getSWvalue(){
-            return allowSwitch.isChecked();
         }
 
         public String getName(){
@@ -186,13 +176,20 @@ public class MainActivity extends ActionBarActivity {
             View row = inflater.inflate(R.layout.row, parent, false);
 
             // Initialize UI for row
+            ImageView image = (ImageView) row.findViewById(R.id.imageIcon);
             TextView name = (TextView) row.findViewById(R.id.rowText);
-            Switch sw = (Switch) row.findViewById(R.id.allowSwitch);
+            Drawable icon;
+            try {
+                icon = getPackageManager().getApplicationIcon(values.get(pos).getPackageName());
+            }
+            catch (NameNotFoundException e) {
+                icon = getPackageManager().getDefaultActivityIcon();
+            }
 
-            // Assign UI data
-            values.get(pos).setSW(sw);
-            name.setText( values.get(pos).getAction() + " from " +
-                            values.get(pos).getName() );
+
+            image.setImageDrawable(icon);
+
+            name.setText( values.get(pos).getAction() + " notifications where text contains " + values.get(pos).getAdd());
 
             return row;
         }
@@ -207,12 +204,21 @@ public class MainActivity extends ActionBarActivity {
         //get a list of installed apps
         final PackageManager pm = getPackageManager();
         List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        Collections.sort(packages, new Comparator<ApplicationInfo>(){
+            public int compare(ApplicationInfo a1, ApplicationInfo a2) {
+                String a1_name = (String) pm.getApplicationLabel(a1);
+                String a2_name = (String) pm.getApplicationLabel(a2);
+                return a1_name.compareToIgnoreCase(a2_name);
+            }
+        });
 
         //Fill App Spinner value Array and linked AppInfo Array
         for (ApplicationInfo packageInfo : packages) {
-            String app_name = (String) pm.getApplicationLabel(packageInfo);
-            list.add(app_name);
-            AppInfoArray.add(new AppInfo(app_name, packageInfo.packageName));
+            if (pm.getLaunchIntentForPackage(packageInfo.packageName) != null) {
+                String app_name = (String) pm.getApplicationLabel(packageInfo);
+                list.add(app_name);
+                AppInfoArray.add(new AppInfo(app_name, packageInfo.packageName));
+            }
         }
 
         // Update App Spinner

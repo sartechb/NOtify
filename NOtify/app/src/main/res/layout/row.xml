@@ -3,13 +3,10 @@
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Switch
-        android:id="@+id/allowSwitch"
+    <ImageView
+        android:id="@+id/imageIcon"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textOn="Allow"
-        android:textOff="Ignore"
-        android:onClick="onAllowClicked"/>
+        android:layout_height="fill_parent"/>
     <TextView
         android:id="@+id/rowText"
         android:layout_width="wrap_content"

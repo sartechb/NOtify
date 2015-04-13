@@ -22,6 +22,7 @@ import org.json.JSONArray;
 
 public class NLService extends NotificationListenerService {
     private String TAG = this.getClass().getSimpleName();
+    private DatabaseAccess db;
 
     @Override
     public void onCreate() {
@@ -48,13 +49,25 @@ public class NLService extends NotificationListenerService {
         title = (title != null) ? title : "";
         String full_text = title + " " + body;
         ArrayList<String> people = sbn.getNotification().extras.getStringArrayList(Notification.EXTRA_PEOPLE);
+        db = new DatabaseAccess(this);
+        String filter = db.getAppString(sbn.getPackageName());
+        Log.i(TAG, "FILTER = " + ((filter != null) ? filter : "(null)"));
         if (people != null) {
             for (String person : people) {
                 full_text = full_text + " " + people;
             }
         }
-        if (!full_text.toLowerCase().contains("mark")) {
+        if (filter == null) {
             sendNotification((String) ((ai != null) ? pm.getApplicationLabel(ai) : "(unknown)"), (String) sbn.getNotification().tickerText);
+        }
+        else if (filter.length() < 3) {
+            sendNotification((String) ((ai != null) ? pm.getApplicationLabel(ai) : "(unknown)"), (String) sbn.getNotification().tickerText);
+        }
+        else if (!full_text.toLowerCase().contains(filter.toLowerCase())) {
+            sendNotification((String) ((ai != null) ? pm.getApplicationLabel(ai) : "(unknown)"), (String) sbn.getNotification().tickerText);
+        }
+        else {
+            Log.i(TAG, "BLOCKED, YEAHHHHHHH");
         }
         onNotification(sbn, "Posted", full_text);
     }
